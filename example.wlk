@@ -131,7 +131,10 @@ class NaveHospital inherits NaveDePasajeros{
   var tienePreparadosQuirofanos = false
   method prepararQuirofanos() {tienePreparadosQuirofanos = true}
   method inhabilitarQuirofanos() {tienePreparadosQuirofanos = false}
-  method tienePreparadosQuirofanos() =tienePreparadosQuirofanos
+  method tienePreparadosQuirofanos() = tienePreparadosQuirofanos
+  override method condicionAdicional() {
+    return !self.tienePreparadosQuirofanos()
+  }
 }
 
 class NaveDeCombateSigilosa inherits NaveDeCombate {
