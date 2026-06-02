@@ -54,6 +54,12 @@ class Nave {
   }
 
   method condicionAdicional()//es abstracta
+  method recibirAmenaza() {
+    self.escapar()
+    self.avisar()
+  }
+  method escapar() 
+  method avisar() 
 }
 
 class NaveBaliza inherits Nave{
@@ -74,6 +80,13 @@ class NaveBaliza inherits Nave{
     return baliza != "rojo"
   }//el super sobreescribe. de esta forma no esta sobreescripto
   
+  override method escapar() {
+    self.irHaciaElSol()
+  }
+
+  override method avisar() {
+    self.cambiarColorDeBaliza("rojo")
+  }
 }
 
 class NaveDePasajeros inherits Nave{
@@ -88,7 +101,12 @@ class NaveDePasajeros inherits Nave{
   method cargarBebida(unValor) {
     bebida += unValor
   }
-
+  method consumirComida(unValor) {
+    comida = (comida - unValor).max(0)
+  }
+  method consumirBebida(unValor) {
+    bebida = (bebida - unValor).max(0)
+  }
   override method prepararViaje() {
     super()
     self.cargarComdida(4 * pasajeros)
@@ -98,6 +116,14 @@ class NaveDePasajeros inherits Nave{
   override method condicionAdicional(){
     return true
   }
+  override method escapar(){
+    self.acelerar(velocidad)
+  }
+  override method avisar() {
+    self.consumirComida(pasajeros)
+    self.consumirBebida(pasajeros*2)
+  }
+
 }
 
 class NaveDeCombate inherits Nave{
@@ -125,6 +151,15 @@ class NaveDeCombate inherits Nave{
   } 
 
  override method condicionAdicional() = !misilesDesplegados
+
+ override method escapar(){
+    self.acercarseUnPocoAlSol()
+    self.acercarseUnPocoAlSol()
+ }
+ override method avisar() {
+    self.emitirMensaje("Amenaza recibida")
+ }
+
 }
 
 class NaveHospital inherits NaveDePasajeros{
@@ -135,11 +170,22 @@ class NaveHospital inherits NaveDePasajeros{
   override method condicionAdicional() {
     return !self.tienePreparadosQuirofanos()
   }
+
+  override method recibirAmenaza() {
+    super()
+    self.prepararQuirofanos()
+  }
 }
 
 class NaveDeCombateSigilosa inherits NaveDeCombate {
   override method condicionAdicional() {
     return
     super() && estaVisible
+  }
+
+  override method escapar() {
+    super()
+    self.desplegarMisiles()
+    self.PonerseInvisible()
   }
 }
