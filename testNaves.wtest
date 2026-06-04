@@ -1,0 +1,207 @@
+import naves.*
+
+describe "Nave Baliza" {
+
+  test "Preparar viaje pone baliza verde y direccion paralela al sol" {
+    const nave = new NaveBaliza()
+
+    nave.prepararViaje()
+
+    assert.equals("verde", nave.baliza())
+    assert.equals(0, nave.direccion())
+    assert.equals(30000, nave.combustible())
+    assert.equals(5000, nave.velocidad())
+  }
+
+  test "Recibir amenaza pone baliza roja e ir hacia el sol" {
+    const nave = new NaveBaliza()
+
+    nave.recibirAmenaza()
+
+    assert.equals("rojo", nave.baliza())
+    assert.equals(10, nave.direccion())
+  }
+
+  test "Baliza roja no esta tranquila" {
+    const nave = new NaveBaliza()
+
+    nave.cargarCombustible(5000)
+    nave.cambiarColorDeBaliza("rojo")
+
+    assert.notThat(nave.estaTranquila())
+  }
+}
+
+describe "Nave de Pasajeros" {
+
+  test "Preparar viaje carga comida y bebida" {
+    const nave = new NaveDePasajeros(pasajeros = 10)
+
+    nave.prepararViaje()
+
+    assert.equals(40, nave.comida())
+    assert.equals(60, nave.bebida())
+    assert.equals(1, nave.direccion())
+  }
+
+  test "Recibir amenaza sirve comida y bebida" {
+    const nave = new NaveDePasajeros(pasajeros = 5)
+
+    nave.prepararViaje()
+    nave.recibirAmenaza()
+
+    assert.equals(15, nave.comida())
+    assert.equals(20, nave.bebida())
+  }
+
+  test "Nave tranquila con combustible suficiente" {
+    const nave = new NaveDePasajeros(pasajeros = 5)
+
+    nave.cargarCombustible(5000)
+
+    assert.that(nave.estaTranquila())
+  }
+
+  test "Nave deja de estar tranquila si supera velocidad maxima" {
+    const nave = new NaveDePasajeros(pasajeros = 5)
+
+    nave.cargarCombustible(5000)
+    nave.acelerar(13000)
+
+    assert.notThat(nave.estaTranquila())
+  }
+}
+
+describe "Nave de Combate" {
+
+  test "Preparar viaje acelera 20000 y emite mensaje" {
+    const nave = new NaveDeCombate()
+
+    nave.prepararViaje()
+
+    assert.equals(20000, nave.velocidad())
+    assert.equals("saliendo en mision", nave.ultimoMensajeEmitido())
+  }
+
+  test "Recibir amenaza emite mensaje amenaza recibida" {
+    const nave = new NaveDeCombate()
+
+    nave.recibirAmenaza()
+
+    assert.that(
+      nave.emitioMensaje("Amenaza recibida")
+    )
+  }
+
+  test "Recibir amenaza acerca dos veces al sol" {
+    const nave = new NaveDeCombate()
+
+    nave.recibirAmenaza()
+
+    assert.equals(2, nave.direccion())
+  }
+
+  test "Con misiles desplegados no esta tranquila" {
+    const nave = new NaveDeCombate()
+
+    nave.cargarCombustible(5000)
+    nave.desplegarMisiles()
+
+    assert.notThat(nave.estaTranquila())
+  }
+
+  test "Es escueta cuando todos los mensajes son cortos" {
+    const nave = new NaveDeCombate()
+
+    nave.emitirMensaje("hola")
+    nave.emitirMensaje("todo bien")
+
+    assert.that(nave.esEscueta())
+  }
+
+  test "No es escueta cuando un mensaje supera 30 caracteres" {
+    const nave = new NaveDeCombate()
+
+    nave.emitirMensaje("Este mensaje es extremadamente largo para una nave")
+
+    assert.notThat(nave.esEscueta())
+  }
+}
+
+describe "Nave Hospital" {
+
+  test "Preparar quirofanos hace que no este tranquila" {
+    const nave = new NaveHospital(pasajeros = 10)
+
+    nave.cargarCombustible(5000)
+    nave.prepararQuirofanos()
+
+    assert.notThat(nave.estaTranquila())
+  }
+
+  test "Recibir amenaza prepara quirofanos" {
+    const nave = new NaveHospital(pasajeros = 10)
+
+    nave.recibirAmenaza()
+
+    assert.that(
+      nave.tienePreparadosQuirofanos()
+    )
+  }
+}
+
+describe "Nave de Combate Sigilosa" {
+
+  test "Al recibir amenaza despliega misiles" {
+    const nave = new NaveDeCombateSigilosa()
+
+    nave.recibirAmenaza()
+
+    assert.that(
+      nave.misilesDesplegados()
+    )
+  }
+
+  test "Al recibir amenaza se vuelve invisible" {
+    const nave = new NaveDeCombateSigilosa()
+
+    nave.recibirAmenaza()
+
+    assert.that(
+      nave.estaInvisible()
+    )
+  }
+
+  test "No esta tranquila si no esta visible" {
+    const nave = new NaveDeCombateSigilosa()
+
+    nave.cargarCombustible(5000)
+    nave.ponerseInvisible()
+
+    assert.notThat(nave.estaTranquila())
+  }
+}
+
+describe "Relajo" {
+
+  test "Una nave baliza nueva esta de relajo" {
+    const nave = new NaveBaliza()
+
+    nave.cargarCombustible(5000)
+
+    assert.that(
+      nave.estaDeRelajo()
+    )
+  }
+
+  test "Una nave baliza deja de estar de relajo si cambia color" {
+    const nave = new NaveBaliza()
+
+    nave.cargarCombustible(5000)
+    nave.cambiarColorDeBaliza("verde")
+
+    assert.notThat(
+      nave.estaDeRelajo()
+    )
+  }
+}

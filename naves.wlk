@@ -6,6 +6,10 @@ class Nave {
   var direccion = 0
   var combustible = 0
 
+  method velocidad() = velocidad
+  method direccion() = direccion
+  method combustible() = combustible
+
   
   method cargarCombustible(unValor) {
     combustible += unValor
@@ -46,10 +50,9 @@ class Nave {
     self.acelerar(5000)
   }
 
-  method estaTarnquila() {
-    return
-    combustible >= 4000 &&
-    velocidad <= 1200 &&
+  method estaTranquila() {
+    return combustible >= 4000 &&
+    velocidad <= 12000 &&
     self.condicionAdicional()
   }
 
@@ -60,13 +63,21 @@ class Nave {
   }
   method escapar() 
   method avisar() 
+  method estaDeRelajo() {
+    return
+    self.estaTranquila()
+    && self.tienePocaActividad()
+  }
+  method tienePocaActividad() = true
 }
 
 class NaveBaliza inherits Nave{
-  var baliza
+  var baliza = "azul"
+  var cambioDeColor = false
 
   method cambiarColorDeBaliza(colorNuevo){
     baliza = colorNuevo
+    cambioDeColor = true
   }
   method baliza()= baliza
 
@@ -87,12 +98,17 @@ class NaveBaliza inherits Nave{
   override method avisar() {
     self.cambiarColorDeBaliza("rojo")
   }
+  override method tienePocaActividad()= !cambioDeColor
 }
 
 class NaveDePasajeros inherits Nave{
-  const pasajeros
-  var comida
-  var bebida
+  const pasajeros = 0
+  var comida = 0
+  var bebida = 0
+  var cantidadRacionesComidaServidas = 0
+
+  method comida() = comida
+  method bebida() = bebida
 
   method cargarComdida(unValor) {
     comida += unValor
@@ -103,6 +119,7 @@ class NaveDePasajeros inherits Nave{
   }
   method consumirComida(unValor) {
     comida = (comida - unValor).max(0)
+    cantidadRacionesComidaServidas += unValor 
   }
   method consumirBebida(unValor) {
     bebida = (bebida - unValor).max(0)
@@ -123,6 +140,9 @@ class NaveDePasajeros inherits Nave{
     self.consumirComida(pasajeros)
     self.consumirBebida(pasajeros*2)
   }
+  override method tienePocaActividad() {
+    return cantidadRacionesComidaServidas < 50
+  }
 
 }
 
@@ -131,7 +151,7 @@ class NaveDeCombate inherits Nave{
  var misilesDesplegados = false
  const mensajes = []
  method ponerseVisible() {estaVisible = true}
- method PonerseInvisible() {estaVisible = false}
+ method ponerseInvisible() {estaVisible = false}
  method estaInvisible() = !estaVisible
  method desplegarMisiles() { misilesDesplegados = true}
  method replegarMisiles() { misilesDesplegados = false}
@@ -140,7 +160,8 @@ class NaveDeCombate inherits Nave{
  method mensajesEmitidos() = mensajes
  method primerMensajeEmitido() = mensajes.first()
  method ultimoMensajeEmitido()= mensajes.last()
- method esEscueta() = !mensajes.any({m => m.legth() >30 })
+ method esEscueta() = !mensajes.any({m => m.length() > 30 })
+ method estaVisible() = estaVisible
 
  override method prepararViaje(){
     super()
@@ -158,6 +179,9 @@ class NaveDeCombate inherits Nave{
  }
  override method avisar() {
     self.emitirMensaje("Amenaza recibida")
+ }
+ method emitioMensaje(unMensaje) {
+  return mensajes.contains(unMensaje)
  }
 
 }
@@ -179,13 +203,12 @@ class NaveHospital inherits NaveDePasajeros{
 
 class NaveDeCombateSigilosa inherits NaveDeCombate {
   override method condicionAdicional() {
-    return
-    super() && estaVisible
+    return super() && estaVisible
   }
 
   override method escapar() {
     super()
     self.desplegarMisiles()
-    self.PonerseInvisible()
+    self.ponerseInvisible()
   }
 }
